@@ -22,7 +22,7 @@
             </div>
             <div class="text-right">
                 <div class="text-[9px] uppercase tracking-widest text-slate-500">Status</div>
-                <div class="text-xs font-mono font-bold text-green-400">AUTOMATED</div>
+                <div class="text-xs font-mono font-bold text-green-400">V6 AUTOMATED</div>
             </div>
         </div>
     </header>
@@ -32,10 +32,14 @@
         <div class="bg-white p-5 shadow-sm border-t-4 border-slate-800 space-y-6">
             
             <div>
-                <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Starting Amount (TRY)</label>
-                <div class="relative">
-                    <span class="absolute left-4 top-3.5 text-stone-400 font-bold">₺</span>
-                    <input type="number" id="principal" value="100000" class="w-full pl-8 p-3 bg-stone-50 border border-stone-300 focus:border-slate-800 outline-none text-xl font-bold font-mono text-stone-800 rounded-sm">
+                <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Starting Amount</label>
+                <div class="flex relative rounded-sm shadow-sm">
+                    <input type="number" id="principal" value="10000" class="w-full p-3 bg-stone-50 border border-stone-300 focus:border-slate-800 outline-none text-xl font-bold font-mono text-stone-800 rounded-l-sm">
+                    <select id="baseCurrency" class="bg-slate-100 border-y border-r border-stone-300 font-bold text-stone-700 px-4 rounded-r-sm outline-none focus:border-slate-800">
+                        <option value="USD" selected>USD $</option>
+                        <option value="TRY">TRY ₺</option>
+                        <option value="PKR">PKR ₨</option>
+                    </select>
                 </div>
             </div>
 
@@ -65,7 +69,7 @@
 
             <div id="cardTRY" class="bg-white border border-stone-200 shadow-sm p-4 relative overflow-hidden transition-all">
                 <div class="absolute top-0 right-0 p-3 opacity-10 font-bold text-4xl">🇹🇷</div>
-                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">1. Turkish Deposit (TCMB Policy)</h3>
+                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">1. Turkish Deposit (TCMB)</h3>
                 
                 <div class="grid grid-cols-2 gap-4 mb-3">
                     <div>
@@ -121,7 +125,7 @@
 
             <div id="cardPKR" class="bg-white border border-stone-200 shadow-sm p-4 relative overflow-hidden transition-all">
                 <div class="absolute top-0 right-0 p-3 opacity-10 font-bold text-4xl">🇵🇰</div>
-                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">3. Pakistan Deposit (SBP Policy)</h3>
+                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">3. Pakistan Deposit (SBP)</h3>
                 
                 <div class="grid grid-cols-2 gap-4 mb-3">
                     <div>
@@ -153,7 +157,7 @@
     <script>
         // --- 1. HISTORICAL DATABASES ---
         
-        // TCMB (Turkey) Policy Rates (2000-2026)
+        // TCMB (Turkey) Policy Rates
         const HISTORY_TCMB = [
             { d: "2026-01-22", r: 38.0 }, { d: "2025-12-11", r: 38.0 }, { d: "2025-11-20", r: 39.5 },
             { d: "2025-10-23", r: 39.5 }, { d: "2025-09-18", r: 40.5 }, { d: "2025-08-21", r: 43.0 },
@@ -168,32 +172,34 @@
             { d: "2000-01-01", r: 60.0 }
         ];
 
-        // SBP (Pakistan) Policy Rates (2020-2026)
+        // SBP (Pakistan) Policy Rates
         const HISTORY_SBP = [
-            { d: "2025-12-01", r: 13.5 }, // Forward estimates
-            { d: "2024-11-05", r: 15.0 },
-            { d: "2024-09-12", r: 17.5 },
-            { d: "2024-07-29", r: 19.5 },
-            { d: "2024-06-11", r: 20.5 },
-            { d: "2023-06-27", r: 22.0 },
-            { d: "2023-04-05", r: 21.0 },
-            { d: "2023-03-03", r: 20.0 },
-            { d: "2023-01-24", r: 17.0 },
-            { d: "2022-11-25", r: 16.0 },
-            { d: "2022-07-08", r: 15.0 },
-            { d: "2022-05-24", r: 13.75},
-            { d: "2022-04-08", r: 12.25},
-            { d: "2021-12-15", r: 9.75 },
-            { d: "2021-11-20", r: 8.75 },
-            { d: "2020-06-26", r: 7.00 },
-            { d: "2000-01-01", r: 10.0 } // Fallback
+            { d: "2025-12-01", r: 13.5 }, { d: "2024-11-05", r: 15.0 }, { d: "2024-09-12", r: 17.5 },
+            { d: "2024-07-29", r: 19.5 }, { d: "2024-06-11", r: 20.5 }, { d: "2023-06-27", r: 22.0 },
+            { d: "2023-04-05", r: 21.0 }, { d: "2023-03-03", r: 20.0 }, { d: "2023-01-24", r: 17.0 },
+            { d: "2022-11-25", r: 16.0 }, { d: "2022-07-08", r: 15.0 }, { d: "2022-05-24", r: 13.75},
+            { d: "2022-04-08", r: 12.25}, { d: "2021-12-15", r: 9.75 }, { d: "2021-11-20", r: 8.75 },
+            { d: "2020-06-26", r: 7.00 }, { d: "2000-01-01", r: 10.0 } 
+        ];
+
+        // 25-Year PKR/USD Fallback Database (If API Fails for old dates)
+        const HISTORY_PKR_FX = [
+            { d: "2026-01-01", r: 279.0 }, { d: "2025-01-01", r: 278.5 }, { d: "2024-01-01", r: 280.0 },
+            { d: "2023-01-01", r: 226.0 }, { d: "2022-01-01", r: 176.0 }, { d: "2021-01-01", r: 160.0 },
+            { d: "2020-01-01", r: 154.0 }, { d: "2019-01-01", r: 139.0 }, { d: "2018-01-01", r: 110.0 },
+            { d: "2017-01-01", r: 104.0 }, { d: "2016-01-01", r: 104.0 }, { d: "2015-01-01", r: 100.0 },
+            { d: "2014-01-01", r: 105.0 }, { d: "2013-01-01", r: 97.0 },  { d: "2012-01-01", r: 90.0 },
+            { d: "2011-01-01", r: 85.0 },  { d: "2010-01-01", r: 84.0 },  { d: "2009-01-01", r: 79.0 },
+            { d: "2008-01-01", r: 62.0 },  { d: "2007-01-01", r: 60.0 },  { d: "2006-01-01", r: 59.0 },
+            { d: "2005-01-01", r: 59.0 },  { d: "2004-01-01", r: 57.0 },  { d: "2003-01-01", r: 58.0 },
+            { d: "2002-01-01", r: 60.0 },  { d: "2001-01-01", r: 58.0 },  { d: "2000-01-01", r: 51.0 }
         ];
 
         const CONFIG = {
-            TAX_TRY: 0.175,   // 17.5% Standard Turkey
-            TAX_NPC: 0.10,    // 10% Standard NPC WHT
-            TAX_PKR: 0.15,    // 15% Standard Filer Pakistan
-            NPC_RATE: 0.07,   // 7% Annual USD
+            TAX_TRY: 0.175,   
+            TAX_NPC: 0.10,    
+            TAX_PKR: 0.15,    
+            NPC_RATE: 0.07,   
             PROXY: "https://corsproxy.io/?",
             TCMB_URL: "https://www.tcmb.gov.tr/kurlar"
         };
@@ -209,7 +215,7 @@
         endEl.value = todayStr;
         
         const past = new Date(today);
-        past.setDate(past.getDate() - 365); // Default 1 Year
+        past.setDate(past.getDate() - 365); 
         startEl.value = new Date(past.getTime() - (past.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
 
         // --- MASTER FUNCTION ---
@@ -223,13 +229,13 @@
             errorBox.classList.add('hidden');
             results.classList.add('hidden');
 
-            // Reset UI Highlights
             document.getElementById('cardTRY').classList.remove('winner-glow');
             document.getElementById('cardNPC').classList.remove('winner-glow');
             document.getElementById('cardPKR').classList.remove('winner-glow');
 
             try {
-                const principalTRY = parseFloat(document.getElementById('principal').value);
+                const inputVal = parseFloat(document.getElementById('principal').value);
+                const baseCur = document.getElementById('baseCurrency').value;
                 const d1 = new Date(startEl.value);
                 const d2 = new Date(endEl.value);
 
@@ -237,16 +243,27 @@
 
                 const days = Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
 
-                // 1. FETCH ALL FX RATES PARALLEL (TCMB + CDN for PKR)
+                // 1. FETCH ALL FX RATES PARALLEL 
                 const [tcmbStart, tcmbEnd, pkrStart, pkrEnd] = await Promise.all([
-                    fetchTCMB(d1),
-                    fetchTCMB(d2),
-                    fetchPKR(d1),
-                    fetchPKR(d2)
+                    fetchTCMB(d1), fetchTCMB(d2), fetchPKR(d1), fetchPKR(d2)
                 ]);
 
-                // The Base: What was the TRY worth in USD on day 1?
-                const startUSD = principalTRY / tcmbStart;
+                // 2. CURRENCY CONVERTER LOGIC
+                let startUSD, principalTRY, startPKR;
+                
+                if (baseCur === 'USD') {
+                    startUSD = inputVal;
+                    principalTRY = startUSD * tcmbStart;
+                    startPKR = startUSD * pkrStart;
+                } else if (baseCur === 'TRY') {
+                    principalTRY = inputVal;
+                    startUSD = principalTRY / tcmbStart;
+                    startPKR = startUSD * pkrStart;
+                } else if (baseCur === 'PKR') {
+                    startPKR = inputVal;
+                    startUSD = startPKR / pkrStart;
+                    principalTRY = startUSD * tcmbStart;
+                }
 
                 // ----------------------------------------------------
                 // ROUTE 1: TURKEY (TRY)
@@ -266,7 +283,6 @@
                 // ----------------------------------------------------
                 // ROUTE 2: NAYA PAKISTAN (USD)
                 // ----------------------------------------------------
-                // Simple interest on USD principal. (7% annual)
                 const npcGrossInterest = startUSD * CONFIG.NPC_RATE * (days / 365);
                 const npcNetInterest = npcGrossInterest - (npcGrossInterest * CONFIG.TAX_NPC);
                 const finalNpcUSD = startUSD + npcNetInterest;
@@ -275,7 +291,6 @@
                 // ----------------------------------------------------
                 // ROUTE 3: PAKISTAN (PKR)
                 // ----------------------------------------------------
-                const startPKR = startUSD * pkrStart;
                 let pkrInterest = 0, pkrRateSum = 0;
                 let curDatePKR = new Date(d1);
                 while (curDatePKR < d2) {
@@ -289,25 +304,20 @@
                 const pkrProfit = finalPkrUSD - startUSD;
 
                 // --- UPDATE UI ---
-                
-                // 1. TRY
                 document.getElementById('tryAvgRate').innerText = (tryRateSum / days).toFixed(2) + '%';
                 document.getElementById('tryStartUsd').innerText = fmt(startUSD);
                 document.getElementById('tryUsdResult').innerText = fmt(finalTryUSD);
                 styleProfit('tryProfitLabel', tryProfit, startUSD);
 
-                // 2. NPC
                 document.getElementById('npcStartUsd').innerText = fmt(startUSD);
                 document.getElementById('npcUsdResult').innerText = fmt(finalNpcUSD);
                 styleProfit('npcProfitLabel', npcProfit, startUSD);
 
-                // 3. PKR
                 document.getElementById('pkrAvgRate').innerText = (pkrRateSum / days).toFixed(2) + '%';
                 document.getElementById('pkrStartUsd').innerText = fmt(startUSD);
                 document.getElementById('pkrUsdResult').innerText = fmt(finalPkrUSD);
                 styleProfit('pkrProfitLabel', pkrProfit, startUSD);
 
-                // HIGHLIGHT WINNER
                 const maxUsd = Math.max(finalTryUSD, finalNpcUSD, finalPkrUSD);
                 if (maxUsd === finalTryUSD) document.getElementById('cardTRY').classList.add('winner-glow');
                 if (maxUsd === finalNpcUSD) document.getElementById('cardNPC').classList.add('winner-glow');
@@ -348,9 +358,9 @@
 
         // --- FETCH ENGINES ---
 
-        // 1. TCMB (TRY/USD)
+        // TCMB (TRY/USD)
         async function fetchTCMB(dateObj, attempts = 0) {
-            if (attempts > 14) throw new Error("TCMB data unavailable. Try different dates.");
+            if (attempts > 14) throw new Error("TCMB data unavailable for these dates.");
             let d = new Date(dateObj);
             if (d.getDay() === 0) d.setDate(d.getDate() - 2);
             else if (d.getDay() === 6) d.setDate(d.getDate() - 1);
@@ -364,11 +374,7 @@
 
             try {
                 const res = await fetch(proxy);
-                if (!res.ok) {
-                    let prevDay = new Date(d);
-                    prevDay.setDate(prevDay.getDate() - 1);
-                    return await fetchTCMB(prevDay, attempts + 1);
-                }
+                if (!res.ok) throw new Error("404");
                 const txt = await res.text();
                 const parser = new DOMParser();
                 const xml = parser.parseFromString(txt, "text/xml");
@@ -378,7 +384,7 @@
                         return parseFloat(items[i].getElementsByTagName("ForexBuying")[0].textContent);
                     }
                 }
-                throw new Error("USD Missing");
+                throw new Error("Missing");
             } catch (error) {
                 let prevDay = new Date(d);
                 prevDay.setDate(prevDay.getDate() - 1);
@@ -386,25 +392,24 @@
             }
         }
 
-        // 2. Free CDN API (USD/PKR)
+        // PKR/USD (API with Hardcoded History Fallback)
         async function fetchPKR(dateObj, attempts = 0) {
-            if (attempts > 5) throw new Error("PKR Exchange Rate unavailable for this date.");
-            
             let d = new Date(dateObj);
+            
+            // If API fails after 3 tries OR if the date is older than what the API supports, use our local database
+            if (attempts > 3 || d.getFullYear() < 2010) {
+                return getRateForDate(HISTORY_PKR_FX, d);
+            }
+            
             const yyyy = d.getFullYear();
             const mm = String(d.getMonth() + 1).padStart(2, '0');
             const dd = String(d.getDate()).padStart(2, '0');
             const dateStr = `${yyyy}-${mm}-${dd}`;
-
             const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/usd.json`;
 
             try {
                 const res = await fetch(url);
-                if (!res.ok) {
-                    let prevDay = new Date(d);
-                    prevDay.setDate(prevDay.getDate() - 1);
-                    return await fetchPKR(prevDay, attempts + 1);
-                }
+                if (!res.ok) throw new Error("API failed");
                 const data = await res.json();
                 return data.usd.pkr; 
             } catch (error) {
