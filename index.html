@@ -18,11 +18,11 @@
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
                 <h1 class="font-bold text-lg tracking-tight">🌍 Global Audit</h1>
-                <p class="text-[10px] text-slate-400">TRY vs USD (NPC) vs PKR (SBP)</p>
+                <p class="text-[10px] text-slate-400">TRY vs USD (NPC) vs PKR vs HLAL</p>
             </div>
             <div class="text-right">
                 <div class="text-[9px] uppercase tracking-widest text-slate-500">Status</div>
-                <div class="text-xs font-mono font-bold text-green-400">V6.1 AUTOMATED</div>
+                <div class="text-xs font-mono font-bold text-green-400">V7 AUTOMATED</div>
             </div>
         </div>
     </header>
@@ -63,13 +63,52 @@
 
         <div id="results" class="hidden space-y-4">
             
-            <div class="text-center pb-2 border-b border-stone-300">
+            <div class="text-center pb-2 border-b border-stone-300 mt-2">
                 <span class="text-xs font-bold text-stone-500 uppercase tracking-widest">Investment Outcomes (Net USD)</span>
+            </div>
+
+            <div id="cardHLAL" class="bg-white border border-stone-200 shadow-sm p-4 relative overflow-hidden transition-all">
+                <div class="absolute top-0 right-0 p-3 opacity-10 font-bold text-4xl">📈</div>
+                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">1. US Equity (HLAL Shariah ETF)</h3>
+                
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <p class="text-[9px] text-stone-400 uppercase">Start Price</p>
+                        <p class="font-mono text-sm font-bold text-slate-800" id="hlalStartPrice">...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-stone-400 uppercase">Cap Gains Tax</p>
+                        <p class="font-mono text-sm text-red-600">15.0%</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between border-t border-stone-100 pt-3 mb-3">
+                    <div>
+                        <p class="text-[9px] text-stone-400 uppercase">End Price</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="hlalEndPrice">...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-stone-400 uppercase">Shares Bought</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="hlalShares">...</p>
+                    </div>
+                </div>
+                
+                <div class="bg-stone-50 p-3 border border-stone-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-stone-500">Starting USD:</span>
+                        <span class="text-base font-bold font-mono text-stone-600 tracking-tight" id="hlalStartUsd">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-stone-200 pt-2">
+                        <span class="text-xs font-bold text-stone-800">Final Real USD:</span>
+                        <span class="text-xl font-bold font-mono tracking-tight" id="hlalUsdResult">$0.00</span>
+                    </div>
+                </div>
+                <div class="text-right mt-2 text-[11px] text-stone-500 font-mono" id="hlalProfitLabel">Profit: $0.00 (0.00%)</div>
             </div>
 
             <div id="cardTRY" class="bg-white border border-stone-200 shadow-sm p-4 relative overflow-hidden transition-all">
                 <div class="absolute top-0 right-0 p-3 opacity-10 font-bold text-4xl">🇹🇷</div>
-                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">1. Turkish Deposit (TCMB)</h3>
+                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">2. Turkish Deposit (TCMB)</h3>
                 
                 <div class="grid grid-cols-2 gap-4 mb-3">
                     <div>
@@ -108,7 +147,7 @@
 
             <div id="cardNPC" class="bg-white border border-stone-200 shadow-sm p-4 relative overflow-hidden transition-all">
                 <div class="absolute top-0 right-0 p-3 opacity-10 font-bold text-4xl">💵</div>
-                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">2. Naya Pakistan Cert. (USD)</h3>
+                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">3. Naya Pakistan Cert. (USD)</h3>
                 
                 <div class="grid grid-cols-2 gap-4 mb-3">
                     <div>
@@ -147,7 +186,7 @@
 
             <div id="cardPKR" class="bg-white border border-stone-200 shadow-sm p-4 relative overflow-hidden transition-all">
                 <div class="absolute top-0 right-0 p-3 opacity-10 font-bold text-4xl">🇵🇰</div>
-                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">3. Pakistan Deposit (SBP)</h3>
+                <h3 class="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">4. Pakistan Deposit (SBP)</h3>
                 
                 <div class="grid grid-cols-2 gap-4 mb-3">
                     <div>
@@ -190,7 +229,6 @@
     <script>
         // --- 1. HISTORICAL DATABASES ---
         
-        // TCMB (Turkey) Policy Rates
         const HISTORY_TCMB = [
             { d: "2026-01-22", r: 38.0 }, { d: "2025-12-11", r: 38.0 }, { d: "2025-11-20", r: 39.5 },
             { d: "2025-10-23", r: 39.5 }, { d: "2025-09-18", r: 40.5 }, { d: "2025-08-21", r: 43.0 },
@@ -205,7 +243,6 @@
             { d: "2000-01-01", r: 60.0 }
         ];
 
-        // SBP (Pakistan) Policy Rates
         const HISTORY_SBP = [
             { d: "2025-12-01", r: 13.5 }, { d: "2024-11-05", r: 15.0 }, { d: "2024-09-12", r: 17.5 },
             { d: "2024-07-29", r: 19.5 }, { d: "2024-06-11", r: 20.5 }, { d: "2023-06-27", r: 22.0 },
@@ -215,7 +252,6 @@
             { d: "2020-06-26", r: 7.00 }, { d: "2000-01-01", r: 10.0 } 
         ];
 
-        // 25-Year PKR/USD Fallback Database (If API Fails for old dates)
         const HISTORY_PKR_FX = [
             { d: "2026-01-01", r: 279.0 }, { d: "2025-01-01", r: 278.5 }, { d: "2024-01-01", r: 280.0 },
             { d: "2023-01-01", r: 226.0 }, { d: "2022-01-01", r: 176.0 }, { d: "2021-01-01", r: 160.0 },
@@ -231,10 +267,12 @@
         const CONFIG = {
             TAX_TRY: 0.175,   
             TAX_NPC: 0.10,    
-            TAX_PKR: 0.15,    
+            TAX_PKR: 0.15,
+            TAX_HLAL: 0.15, // Standard Cap Gains Placeholder
             NPC_RATE: 0.07,   
             PROXY: "https://corsproxy.io/?",
-            TCMB_URL: "https://www.tcmb.gov.tr/kurlar"
+            TCMB_URL: "https://www.tcmb.gov.tr/kurlar",
+            HLAL_INCEPTION: new Date("2019-07-16")
         };
 
         // --- INIT UI ---
@@ -265,6 +303,7 @@
             document.getElementById('cardTRY').classList.remove('winner-glow');
             document.getElementById('cardNPC').classList.remove('winner-glow');
             document.getElementById('cardPKR').classList.remove('winner-glow');
+            document.getElementById('cardHLAL').classList.remove('winner-glow');
 
             try {
                 const inputVal = parseFloat(document.getElementById('principal').value);
@@ -276,9 +315,9 @@
 
                 const days = Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
 
-                // 1. FETCH ALL FX RATES PARALLEL 
-                const [tcmbStart, tcmbEnd, pkrStart, pkrEnd] = await Promise.all([
-                    fetchTCMB(d1), fetchTCMB(d2), fetchPKR(d1), fetchPKR(d2)
+                // 1. FETCH ALL FX RATES & HLAL PARALLEL 
+                const [tcmbStart, tcmbEnd, pkrStart, pkrEnd, hlalData] = await Promise.all([
+                    fetchTCMB(d1), fetchTCMB(d2), fetchPKR(d1), fetchPKR(d2), fetchHLAL(d1, d2)
                 ]);
 
                 // 2. CURRENCY CONVERTER LOGIC
@@ -296,6 +335,39 @@
                     startPKR = inputVal;
                     startUSD = startPKR / pkrStart;
                     principalTRY = startUSD * tcmbStart;
+                }
+
+                // ----------------------------------------------------
+                // ROUTE 0: US STOCK MARKET (HLAL)
+                // ----------------------------------------------------
+                let finalHlalUSD = 0, hlalProfit = 0, hlalValid = false;
+                
+                if (d1 < CONFIG.HLAL_INCEPTION) {
+                    document.getElementById('hlalStartPrice').innerText = "N/A (Pre-Inception)";
+                    document.getElementById('hlalEndPrice').innerText = "N/A";
+                    document.getElementById('hlalShares').innerText = "N/A";
+                    document.getElementById('hlalUsdResult').innerText = "N/A";
+                    document.getElementById('hlalProfitLabel').innerText = "Fund did not exist on Start Date.";
+                } else if (!hlalData) {
+                    document.getElementById('hlalStartPrice').innerText = "API Error";
+                    document.getElementById('hlalEndPrice').innerText = "API Error";
+                    document.getElementById('hlalShares').innerText = "N/A";
+                    document.getElementById('hlalUsdResult').innerText = "Fetch Failed";
+                } else {
+                    hlalValid = true;
+                    const shares = startUSD / hlalData.start;
+                    const endGrossUSD = shares * hlalData.end;
+                    const profitGross = endGrossUSD - startUSD;
+                    const taxHLAL = profitGross > 0 ? (profitGross * CONFIG.TAX_HLAL) : 0;
+                    finalHlalUSD = startUSD + profitGross - taxHLAL;
+                    hlalProfit = finalHlalUSD - startUSD;
+
+                    document.getElementById('hlalStartPrice').innerText = `$${hlalData.start.toFixed(2)}`;
+                    document.getElementById('hlalEndPrice').innerText = `$${hlalData.end.toFixed(2)}`;
+                    document.getElementById('hlalShares').innerText = shares.toFixed(4);
+                    document.getElementById('hlalStartUsd').innerText = fmt(startUSD);
+                    document.getElementById('hlalUsdResult').innerText = fmt(finalHlalUSD);
+                    styleProfit('hlalProfitLabel', hlalProfit, startUSD);
                 }
 
                 // ----------------------------------------------------
@@ -336,23 +408,19 @@
                 const finalPkrUSD = netPKR / pkrEnd;
                 const pkrProfit = finalPkrUSD - startUSD;
 
-                // --- UPDATE UI ---
+                // --- UPDATE UI FOR BANKING ---
                 
-                // Populate FX Rates
                 document.getElementById('tryFxStart').innerText = `1$ = ${tcmbStart.toFixed(2)}₺`;
                 document.getElementById('tryFxEnd').innerText = `1$ = ${tcmbEnd.toFixed(2)}₺`;
-                
                 document.getElementById('pkrFxStart').innerText = `1$ = ${pkrStart.toFixed(2)}₨`;
                 document.getElementById('pkrFxEnd').innerText = `1$ = ${pkrEnd.toFixed(2)}₨`;
 
-                // NPC Base Conversion Rate Display
                 let baseSym = baseCur === 'TRY' ? '₺' : (baseCur === 'PKR' ? '₨' : '$');
                 let startRateFx = baseCur === 'TRY' ? tcmbStart : (baseCur === 'PKR' ? pkrStart : 1);
                 let endRateFx = baseCur === 'TRY' ? tcmbEnd : (baseCur === 'PKR' ? pkrEnd : 1);
                 document.getElementById('npcFxStart').innerText = baseCur === 'USD' ? 'N/A (Base USD)' : `1$ = ${startRateFx.toFixed(2)}${baseSym}`;
                 document.getElementById('npcFxEnd').innerText = baseCur === 'USD' ? 'N/A (Base USD)' : `1$ = ${endRateFx.toFixed(2)}${baseSym}`;
 
-                // Populate Values
                 document.getElementById('tryAvgRate').innerText = (tryRateSum / days).toFixed(2) + '%';
                 document.getElementById('tryStartUsd').innerText = fmt(startUSD);
                 document.getElementById('tryUsdResult').innerText = fmt(finalTryUSD);
@@ -368,10 +436,13 @@
                 styleProfit('pkrProfitLabel', pkrProfit, startUSD);
 
                 // Highlight Winner
-                const maxUsd = Math.max(finalTryUSD, finalNpcUSD, finalPkrUSD);
+                let maxUsd = Math.max(finalTryUSD, finalNpcUSD, finalPkrUSD);
+                if (hlalValid) maxUsd = Math.max(maxUsd, finalHlalUSD);
+                
                 if (maxUsd === finalTryUSD) document.getElementById('cardTRY').classList.add('winner-glow');
                 if (maxUsd === finalNpcUSD) document.getElementById('cardNPC').classList.add('winner-glow');
                 if (maxUsd === finalPkrUSD) document.getElementById('cardPKR').classList.add('winner-glow');
+                if (hlalValid && maxUsd === finalHlalUSD) document.getElementById('cardHLAL').classList.add('winner-glow');
 
                 results.classList.remove('hidden');
 
@@ -408,7 +479,43 @@
 
         // --- FETCH ENGINES ---
 
-        // TCMB (TRY/USD)
+        // 1. Yahoo Finance for HLAL (Via Proxy)
+        async function fetchHLAL(startDate, endDate) {
+            if (startDate < CONFIG.HLAL_INCEPTION) return null;
+            
+            const url = "https://query1.finance.yahoo.com/v8/finance/chart/HLAL?interval=1d&range=10y";
+            const proxy = CONFIG.PROXY + encodeURIComponent(url);
+
+            try {
+                const res = await fetch(proxy);
+                if (!res.ok) throw new Error("Yahoo API Error");
+                const data = await res.json();
+                
+                const timestamps = data.chart.result[0].timestamp;
+                const prices = data.chart.result[0].indicators.quote[0].close;
+
+                const startTs = Math.floor(startDate.getTime() / 1000);
+                const endTs = Math.floor(endDate.getTime() / 1000);
+
+                let startIdx = 0, endIdx = 0;
+                for(let i=0; i<timestamps.length; i++) {
+                    if (timestamps[i] <= startTs) startIdx = i;
+                    if (timestamps[i] <= endTs) endIdx = i;
+                }
+
+                // If end date is today, use the very last available price
+                if (endTs >= timestamps[timestamps.length-1]) endIdx = timestamps.length-1;
+
+                if (!prices[startIdx] || !prices[endIdx]) throw new Error("Price data missing");
+
+                return { start: prices[startIdx], end: prices[endIdx] };
+            } catch (e) {
+                console.warn("HLAL API blocked or failed.", e);
+                return null;
+            }
+        }
+
+        // 2. TCMB (TRY/USD)
         async function fetchTCMB(dateObj, attempts = 0) {
             if (attempts > 14) throw new Error("TCMB data unavailable for these dates.");
             let d = new Date(dateObj);
@@ -442,11 +549,10 @@
             }
         }
 
-        // PKR/USD (API with Hardcoded History Fallback)
+        // 3. PKR/USD (API with Hardcoded History Fallback)
         async function fetchPKR(dateObj, attempts = 0) {
             let d = new Date(dateObj);
             
-            // If API fails after 3 tries OR if the date is older than what the API supports, use our local database
             if (attempts > 3 || d.getFullYear() < 2010) {
                 return getRateForDate(HISTORY_PKR_FX, d);
             }
