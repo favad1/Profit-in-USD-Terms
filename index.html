@@ -22,7 +22,7 @@
             </div>
             <div class="text-right">
                 <div class="text-[9px] uppercase tracking-widest text-slate-500">Status</div>
-                <div class="text-xs font-mono font-bold text-green-400">V6 AUTOMATED</div>
+                <div class="text-xs font-mono font-bold text-green-400">V6.1 AUTOMATED</div>
             </div>
         </div>
     </header>
@@ -81,6 +81,17 @@
                         <p class="font-mono text-sm text-red-600">17.5%</p>
                     </div>
                 </div>
+
+                <div class="flex justify-between border-t border-stone-100 pt-3 mb-3">
+                    <div>
+                        <p class="text-[9px] text-stone-400 uppercase">FX Start</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="tryFxStart">...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-stone-400 uppercase">FX End</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="tryFxEnd">...</p>
+                    </div>
+                </div>
                 
                 <div class="bg-stone-50 p-3 border border-stone-200 space-y-2">
                     <div class="flex justify-between items-center">
@@ -109,6 +120,17 @@
                         <p class="font-mono text-sm text-red-600">10.0%</p>
                     </div>
                 </div>
+
+                <div class="flex justify-between border-t border-stone-100 pt-3 mb-3">
+                    <div>
+                        <p class="text-[9px] text-stone-400 uppercase">Base Conversion (Start)</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="npcFxStart">...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-stone-400 uppercase">Base Conversion (End)</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="npcFxEnd">...</p>
+                    </div>
+                </div>
                 
                 <div class="bg-stone-50 p-3 border border-stone-200 space-y-2">
                     <div class="flex justify-between items-center">
@@ -135,6 +157,17 @@
                     <div class="text-right">
                         <p class="text-[9px] text-stone-400 uppercase">Tax (Filer)</p>
                         <p class="font-mono text-sm text-red-600">15.0%</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between border-t border-stone-100 pt-3 mb-3">
+                    <div>
+                        <p class="text-[9px] text-stone-400 uppercase">FX Start</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="pkrFxStart">...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-stone-400 uppercase">FX End</p>
+                        <p class="font-mono text-xs font-bold text-stone-600" id="pkrFxEnd">...</p>
                     </div>
                 </div>
                 
@@ -304,6 +337,22 @@
                 const pkrProfit = finalPkrUSD - startUSD;
 
                 // --- UPDATE UI ---
+                
+                // Populate FX Rates
+                document.getElementById('tryFxStart').innerText = `1$ = ${tcmbStart.toFixed(2)}₺`;
+                document.getElementById('tryFxEnd').innerText = `1$ = ${tcmbEnd.toFixed(2)}₺`;
+                
+                document.getElementById('pkrFxStart').innerText = `1$ = ${pkrStart.toFixed(2)}₨`;
+                document.getElementById('pkrFxEnd').innerText = `1$ = ${pkrEnd.toFixed(2)}₨`;
+
+                // NPC Base Conversion Rate Display
+                let baseSym = baseCur === 'TRY' ? '₺' : (baseCur === 'PKR' ? '₨' : '$');
+                let startRateFx = baseCur === 'TRY' ? tcmbStart : (baseCur === 'PKR' ? pkrStart : 1);
+                let endRateFx = baseCur === 'TRY' ? tcmbEnd : (baseCur === 'PKR' ? pkrEnd : 1);
+                document.getElementById('npcFxStart').innerText = baseCur === 'USD' ? 'N/A (Base USD)' : `1$ = ${startRateFx.toFixed(2)}${baseSym}`;
+                document.getElementById('npcFxEnd').innerText = baseCur === 'USD' ? 'N/A (Base USD)' : `1$ = ${endRateFx.toFixed(2)}${baseSym}`;
+
+                // Populate Values
                 document.getElementById('tryAvgRate').innerText = (tryRateSum / days).toFixed(2) + '%';
                 document.getElementById('tryStartUsd').innerText = fmt(startUSD);
                 document.getElementById('tryUsdResult').innerText = fmt(finalTryUSD);
@@ -318,6 +367,7 @@
                 document.getElementById('pkrUsdResult').innerText = fmt(finalPkrUSD);
                 styleProfit('pkrProfitLabel', pkrProfit, startUSD);
 
+                // Highlight Winner
                 const maxUsd = Math.max(finalTryUSD, finalNpcUSD, finalPkrUSD);
                 if (maxUsd === finalTryUSD) document.getElementById('cardTRY').classList.add('winner-glow');
                 if (maxUsd === finalNpcUSD) document.getElementById('cardNPC').classList.add('winner-glow');
