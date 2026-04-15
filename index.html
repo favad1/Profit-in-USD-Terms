@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCMB Historical Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #7f1d1d; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 font-sans min-h-screen pb-20">
+
+    <header class="bg-red-950 text-white p-4 shadow-xl sticky top-0 z-50">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <div>
+                <h1 class="font-bold text-lg tracking-tight">🇹🇷 25-Year Audit</h1>
+                <p class="text-[10px] text-red-200 opacity-80">2000-2026 Historical Engine</p>
+            </div>
+            <div class="text-right">
+                <div class="text-[9px] uppercase tracking-widest text-red-400">Policy Rate</div>
+                <div class="text-xs font-mono font-bold" id="currentRateBadge">Fetching...</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 space-y-4">
+
+        <div class="bg-white p-5 shadow-sm border-t-4 border-red-900 space-y-6">
+            
+            <div>
+                <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Principal Invested</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-3.5 text-stone-400 font-bold">₺</span>
+                    <input type="number" id="principal" value="100000" class="w-full pl-8 p-3 bg-stone-50 border border-stone-300 focus:border-red-900 focus:ring-1 focus:ring-red-900 outline-none text-xl font-bold font-mono text-stone-800 rounded-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Start Date</label>
+                    <input type="date" id="startDate" class="w-full p-2.5 bg-stone-50 border border-stone-300 focus:border-red-900 outline-none text-sm font-medium rounded-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">End Date</label>
+                    <input type="date" id="endDate" class="w-full p-2.5 bg-stone-50 border border-stone-300 focus:border-red-900 outline-none text-sm font-medium rounded-sm">
+                </div>
+            </div>
+
+            <div class="bg-stone-100 p-3 border border-stone-200 rounded-sm text-xs space-y-2">
+                <div class="flex justify-between">
+                    <span class="font-bold text-stone-600">Engine Database:</span>
+                    <span class="font-mono text-stone-800">2000 — 2026</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-bold text-stone-600">Algorithm:</span>
+                    <span class="font-mono text-stone-800">Daily Weighted Avg</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-bold text-stone-600">Tax Protocol:</span>
+                    <span class="font-mono text-red-700">17.5% (2025 Std)</span>
+                </div>
+            </div>
+
+            <button onclick="runAudit()" id="btnCalc" class="w-full bg-red-900 hover:bg-red-800 text-white font-bold py-4 shadow-lg active:scale-[0.99] transition-all flex justify-center items-center gap-3 rounded-sm">
+                <span>AUDIT HISTORY</span>
+            </button>
+        </div>
+
+        <div id="errorBox" class="hidden p-4 bg-red-50 border-l-4 border-red-700 text-red-800 text-sm"></div>
+
+        <div id="results" class="hidden space-y-4">
+            
+            <div class="bg-stone-900 text-white shadow-2xl relative overflow-hidden border-t-4 border-red-600">
+                <div class="p-4 border-b border-stone-800 flex justify-between items-baseline">
+                    <h3 class="font-bold text-white text-sm uppercase tracking-widest">USD Performance</h3>
+                    <span class="text-[10px] font-mono text-stone-400" id="durationDisplay">0 Days</span>
+                </div>
+
+                <div class="p-6 grid grid-cols-2 gap-8 relative z-10">
+                    <div>
+                        <p class="text-[9px] text-stone-400 uppercase tracking-widest mb-1">Start Value</p>
+                        <p class="text-xl font-bold text-white tracking-tight" id="startUsd">$0.00</p>
+                        <p class="text-[9px] font-mono text-stone-500 mt-1" id="startRateDisplay">Rate: ...</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-stone-400 uppercase tracking-widest mb-1">End Value</p>
+                        <p class="text-xl font-bold text-white tracking-tight" id="endUsd">$0.00</p>
+                        <p class="text-[9px] font-mono text-stone-500 mt-1" id="endRateDisplay">Rate: ...</p>
+                    </div>
+                </div>
+
+                <div class="bg-black/40 backdrop-blur-md p-5 text-center border-t border-stone-800">
+                    <p class="text-[10px] text-stone-400 uppercase tracking-widest mb-1">Net Real Outcome</p>
+                    <p class="text-4xl font-bold font-mono tracking-tighter" id="realProfit">$0.00</p>
+                    <div class="mt-3 flex justify-center gap-2">
+                         <span class="px-2 py-1 bg-stone-800 rounded text-[9px] text-stone-300 font-mono" id="avgRateUsed">Avg Rate: 0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-stone-200 shadow-sm p-5">
+                <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-4 border-b border-stone-100 pb-2">TCMB Benchmark Breakdown</h3>
+                
+                <div class="space-y-3 text-sm font-mono">
+                    <div class="flex justify-between">
+                        <span class="text-stone-600">Principal:</span>
+                        <span class="font-bold text-stone-800" id="principalDisplay">0.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-stone-600">Gross Interest (Official):</span>
+                        <span class="font-bold text-stone-800" id="grossTry">0.00</span>
+                    </div>
+                    <div class="flex justify-between text-red-700">
+                        <span>Tax (Stopaj 17.5%):</span>
+                        <span class="font-bold" id="taxTry">-0.00</span>
+                    </div>
+                    <div class="h-px bg-stone-100 my-1"></div>
+                    <div class="flex justify-between text-green-700 text-base">
+                        <span class="font-bold">Net Payout:</span>
+                        <span class="font-bold" id="netTry">0.00</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- 1. THE GREAT TCMB HISTORY (2000 - 2026) ---
+        const HISTORY = [
+            { d: "2026-01-22", r: 38.00 },
+            { d: "2025-12-11", r: 38.00 },
+            { d: "2025-11-20", r: 39.50 },
+            { d: "2025-10-23", r: 39.50 },
+            { d: "2025-09-18", r: 40.50 },
+            { d: "2025-08-21", r: 43.00 },
+            { d: "2025-07-24", r: 43.00 },
+            { d: "2025-06-19", r: 46.00 },
+            { d: "2025-05-22", r: 46.00 },
+            { d: "2025-04-17", r: 46.00 },
+            { d: "2025-03-20", r: 46.00 },
+            { d: "2024-03-21", r: 50.00 },
+            { d: "2024-02-22", r: 45.00 },
+            { d: "2024-01-25", r: 45.00 },
+            { d: "2023-12-21", r: 42.50 },
+            { d: "2023-11-23", r: 40.00 },
+            { d: "2023-10-26", r: 35.00 },
+            { d: "2023-09-21", r: 30.00 },
+            { d: "2023-08-24", r: 25.00 },
+            { d: "2023-07-20", r: 17.50 },
+            { d: "2023-06-22", r: 15.00 },
+            { d: "2023-02-23", r: 8.50 },
+            { d: "2022-11-24", r: 9.00 },
+            { d: "2022-10-20", r: 10.50 },
+            { d: "2022-09-22", r: 12.00 },
+            { d: "2022-08-18", r: 13.00 },
+            { d: "2021-12-16", r: 14.00 },
+            { d: "2021-11-18", r: 15.00 },
+            { d: "2021-10-21", r: 16.00 },
+            { d: "2021-09-23", r: 18.00 },
+            { d: "2021-03-18", r: 19.00 },
+            { d: "2020-12-24", r: 17.00 },
+            { d: "2020-11-19", r: 15.00 },
+            { d: "2020-09-24", r: 10.25 },
+            { d: "2020-05-21", r: 8.25 },
+            { d: "2018-09-13", r: 24.00 },
+            { d: "2018-06-07", r: 17.75 },
+            { d: "2014-01-29", r: 10.00 },
+            { d: "2013-05-17", r: 4.50 },
+            { d: "2010-05-18", r: 7.00 },
+            { d: "2008-11-20", r: 16.25 },
+            { d: "2006-07-20", r: 17.50 },
+            { d: "2004-03-17", r: 22.00 },
+            { d: "2003-04-25", r: 41.00 },
+            { d: "2002-04-09", r: 54.00 },
+            { d: "2001-02-21", r: 300.00 },
+            { d: "2000-01-01", r: 60.00 }
+        ];
+
+        const CONFIG = {
+            TAX: 0.175,
+            PROXY: "https://corsproxy.io/?",
+            TCMB: "https://www.tcmb.gov.tr/kurlar"
+        };
+
+        const today = new Date();
+        const todayStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        
+        const startEl = document.getElementById('startDate');
+        const endEl = document.getElementById('endDate');
+        
+        startEl.setAttribute('max', todayStr);
+        endEl.setAttribute('max', todayStr);
+        
+        endEl.value = todayStr;
+        const past = new Date(today);
+        past.setDate(past.getDate() - 365);
+        startEl.value = new Date(past.getTime() - (past.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
+        const currentRate = getRateForDate(today);
+        document.getElementById('currentRateBadge').innerText = `${currentRate.toFixed(2)}%`;
+
+        async function runAudit() {
+            const btn = document.getElementById('btnCalc');
+            const errorBox = document.getElementById('errorBox');
+            const results = document.getElementById('results');
+
+            btn.innerHTML = '<div class="loader"></div>';
+            btn.disabled = true;
+            errorBox.classList.add('hidden');
+            results.classList.add('hidden');
+
+            try {
+                const principal = parseFloat(document.getElementById('principal').value);
+                const d1 = new Date(startEl.value);
+                const d2 = new Date(endEl.value);
+
+                if (d1 >= d2) throw new Error("Start date must be before End date.");
+
+                let totalInterest = 0;
+                let currentDate = new Date(d1);
+                let dayCount = 0;
+                let rateSum = 0;
+
+                while (currentDate < d2) {
+                    const dailyRate = getRateForDate(currentDate);
+                    totalInterest += (principal * dailyRate) / 36500;
+                    rateSum += dailyRate;
+                    dayCount++;
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                const [r1, r2] = await Promise.all([
+                    fetchTCMB(d1),
+                    fetchTCMB(d2)
+                ]);
+
+                const tax = totalInterest * CONFIG.TAX;
+                const netProfit = totalInterest - tax;
+                const finalTry = principal + netProfit;
+
+                const startUsd = principal / r1;
+                const endUsd = finalTry / r2;
+                const realDiff = endUsd - startUsd;
+                const avgRate = rateSum / dayCount;
+
+                document.getElementById('durationDisplay').innerText = `${dayCount} Days`;
+                document.getElementById('avgRateUsed').innerText = `Avg Rate: ${avgRate.toFixed(2)}%`;
+
+                document.getElementById('principalDisplay').innerText = fmt(principal, 'TRY');
+                document.getElementById('grossTry').innerText = '+' + fmt(totalInterest, 'TRY');
+                document.getElementById('taxTry').innerText = '-' + fmt(tax, 'TRY');
+                document.getElementById('netTry').innerText = fmt(finalTry, 'TRY');
+
+                document.getElementById('startUsd').innerText = fmt(startUsd, 'USD');
+                document.getElementById('endUsd').innerText = fmt(endUsd, 'USD');
+                document.getElementById('startRateDisplay').innerText = `${r1.toFixed(4)} ₺`;
+                document.getElementById('endRateDisplay').innerText = `${r2.toFixed(4)} ₺`;
+
+                const pEl = document.getElementById('realProfit');
+                pEl.innerText = (realDiff > 0 ? '+' : '') + fmt(realDiff, 'USD');
+                pEl.className = `text-4xl font-bold font-mono tracking-tighter ${realDiff >= 0 ? 'text-green-400' : 'text-red-500'}`;
+
+                results.classList.remove('hidden');
+
+            } catch (e) {
+                errorBox.innerText = e.message;
+                errorBox.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = 'AUDIT HISTORY';
+                btn.disabled = false;
+            }
+        }
+
+        function getRateForDate(dateObj) {
+            const sorted = HISTORY.sort((a,b) => new Date(b.d) - new Date(a.d));
+            for (let item of sorted) {
+                if (new Date(item.d) <= dateObj) {
+                    return item.r;
+                }
+            }
+            return 60.0; 
+        }
+
+        // --- THE FIX: SMART FALLBACK FETCH ENGINE ---
+        async function fetchTCMB(dateObj, attempts = 0) {
+            // Prevent infinite loops if TCMB site is completely down
+            if (attempts > 14) throw new Error("TCMB data unavailable for the selected date range. Please try different dates.");
+
+            let d = new Date(dateObj);
+            
+            // Standard Weekend Skip
+            if (d.getDay() === 0) d.setDate(d.getDate() - 2); // Sunday to Friday
+            else if (d.getDay() === 6) d.setDate(d.getDate() - 1); // Saturday to Friday
+
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+
+            const url = `${CONFIG.TCMB}/${yyyy}${mm}/${dd}${mm}${yyyy}.xml`;
+            const proxy = CONFIG.PROXY + encodeURIComponent(url);
+
+            try {
+                const res = await fetch(proxy);
+                
+                // If the XML is missing (404), it's a holiday or too early in the day.
+                if (!res.ok) {
+                    let prevDay = new Date(d);
+                    prevDay.setDate(prevDay.getDate() - 1); // Go back exactly 1 day and try again
+                    return await fetchTCMB(prevDay, attempts + 1);
+                }
+                
+                const txt = await res.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(txt, "text/xml");
+                const items = xml.getElementsByTagName("Currency");
+                
+                for(let i=0; i<items.length; i++) {
+                    if(items[i].getAttribute("CurrencyCode") === "USD") {
+                        return parseFloat(items[i].getElementsByTagName("ForexBuying")[0].textContent);
+                    }
+                }
+                
+                // If it loads an XML but USD is missing, trigger fallback
+                throw new Error("USD Missing");
+
+            } catch (error) {
+                // If there's a CORS proxy error or network failure, trigger fallback backwards
+                let prevDay = new Date(d);
+                prevDay.setDate(prevDay.getDate() - 1);
+                return await fetchTCMB(prevDay, attempts + 1);
+            }
+        }
+
+        function fmt(n, c) {
+            return n.toLocaleString(c==='TRY'?'tr-TR':'en-US', {style:'currency', currency:c});
+        }
+    </script>
+</body>
+</html>
